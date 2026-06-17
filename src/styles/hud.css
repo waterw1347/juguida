@@ -1,0 +1,768 @@
+/* ───────────────────────── AR layer stacking ─────────────────────────
+ * video (camera)  → z 0
+ * canvas (WebGL)  → z 1   (transparent, ghosts render here)
+ * #root (HUD)     → z 2
+ * popups          → z 10
+ */
+
+.ar-camera-feed {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  z-index: var(--hud-z-video);
+  filter: var(--camera-filter);
+  background: #000;
+  pointer-events: none;
+}
+
+.ar-canvas {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: var(--hud-z-canvas);
+  pointer-events: none;
+}
+
+/* Shake the camera + scene together. The slight overscan (scale) hides the
+ * edges the translate would otherwise expose. Vars are driven by ScreenEffects. */
+.ar-camera-feed,
+.ar-canvas {
+  transform: translate(var(--ar-shake-x, 0px), var(--ar-shake-y, 0px)) scale(1.06);
+  transform-origin: center;
+  will-change: transform;
+}
+
+/* "확!" flash overlay — above the HUD, briefly, never blocking input. */
+.fx-flash {
+  position: fixed;
+  inset: 0;
+  z-index: 9;
+  pointer-events: none;
+  opacity: 0;
+  mix-blend-mode: screen;
+  background: radial-gradient(circle at 50% 42%, rgba(255, 60, 80, 0.25), rgba(255, 255, 255, 0.92));
+}
+
+#root {
+  position: fixed;
+  inset: 0;
+  z-index: var(--hud-z-hud);
+  /* Transparent so the camera feed (z0) and ghost canvas (z1) show through.
+   * (theme.css paints html/body dark as the pre-camera backdrop.) */
+  background: transparent;
+}
+
+.hud {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.hud > * {
+  pointer-events: auto;
+}
+
+/* ───────────────────────── Buttons ───────────────────────── */
+
+.btn-primary {
+  appearance: none;
+  border: none;
+  border-radius: 999px;
+  padding: 16px 40px;
+  font-size: 18px;
+  font-weight: 700;
+  color: #08110b;
+  background: var(--accent);
+  box-shadow: 0 6px 24px rgba(107, 255, 158, 0.35);
+  cursor: pointer;
+  transition:
+    transform 0.08s ease,
+    opacity 0.15s ease;
+}
+
+.btn-primary:active {
+  transform: scale(0.96);
+}
+
+.btn-primary:disabled {
+  opacity: 0.55;
+  cursor: default;
+}
+
+/* ───────────────────────── Onboarding gate ───────────────────────── */
+
+.gate {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: calc(var(--safe-top) + 24px) 28px calc(var(--safe-bottom) + 24px);
+  background:
+    radial-gradient(120% 90% at 50% 0%, rgba(107, 255, 158, 0.12), transparent 60%),
+    var(--overlay-scrim);
+  backdrop-filter: blur(2px);
+}
+
+.gate__inner {
+  max-width: 420px;
+}
+
+.gate__eyebrow {
+  letter-spacing: 0.3em;
+  font-size: 12px;
+  color: var(--accent);
+  margin: 0 0 12px;
+  text-transform: uppercase;
+}
+
+.gate__title {
+  font-size: 38px;
+  line-height: 1.15;
+  margin: 0 0 18px;
+  font-weight: 800;
+}
+
+.gate__desc {
+  color: var(--text-dim);
+  line-height: 1.6;
+  margin: 0 0 32px;
+}
+
+.gate__desc strong {
+  color: var(--accent);
+}
+
+.gate__cta {
+  width: 100%;
+  max-width: 320px;
+}
+
+.gate__hint {
+  margin-top: 18px;
+  font-size: 13px;
+  color: var(--text-dim);
+}
+
+/* ───────────────────────── Popup ───────────────────────── */
+
+.popup-scrim {
+  position: fixed;
+  inset: 0;
+  z-index: var(--hud-z-modal);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 28px;
+  background: var(--overlay-scrim);
+  backdrop-filter: blur(4px);
+}
+
+.popup-card {
+  width: 100%;
+  max-width: 360px;
+  background: var(--surface-solid);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  padding: 24px;
+  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.45);
+}
+
+.popup-title {
+  margin: 0 0 12px;
+  font-size: 19px;
+  font-weight: 700;
+}
+
+.popup-body {
+  color: var(--text-dim);
+  line-height: 1.6;
+  font-size: 15px;
+}
+
+.popup-actions {
+  margin-top: 22px;
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+}
+
+/* ───────────────────────── Hunting HUD ───────────────────────── */
+
+.hunt {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.reticle {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 96px;
+  height: 96px;
+  transform: translate(-50%, -50%);
+}
+
+.reticle__ring {
+  position: absolute;
+  inset: 0;
+  border: 2px solid var(--reticle);
+  border-radius: 50%;
+  opacity: 0.7;
+  box-shadow: 0 0 12px rgba(0, 0, 0, 0.5);
+}
+
+.reticle__dot {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--reticle);
+  transform: translate(-50%, -50%);
+}
+
+.hunt__hint {
+  position: absolute;
+  left: 50%;
+  bottom: calc(var(--safe-bottom) + 48px);
+  transform: translateX(-50%);
+  white-space: nowrap;
+  padding: 10px 18px;
+  border-radius: 999px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  color: var(--text);
+  font-size: 14px;
+  backdrop-filter: blur(6px);
+}
+
+/* Full-screen hold-to-catch surface (below the reticle, which is decorative). */
+.catch-surface {
+  position: absolute;
+  inset: 0;
+  pointer-events: auto;
+  background: transparent;
+}
+
+/* Catch-gauge ring, filled via --catch-gauge (0..1) set imperatively each frame. */
+.reticle__gauge {
+  position: absolute;
+  inset: -5px;
+  border-radius: 50%;
+  background: conic-gradient(
+    from -90deg,
+    var(--accent) calc(var(--catch-gauge, 0) * 360deg),
+    transparent 0deg
+  );
+  -webkit-mask: radial-gradient(farthest-side, transparent calc(100% - 5px), #000 calc(100% - 5px));
+  mask: radial-gradient(farthest-side, transparent calc(100% - 5px), #000 calc(100% - 5px));
+}
+
+/* Locked-on look while a ghost sits in the reticle. */
+html.is-targeting .reticle {
+  transform: translate(-50%, -50%) scale(1.12);
+}
+html.is-targeting .reticle__ring {
+  border-color: var(--accent);
+  box-shadow: 0 0 18px var(--accent);
+  opacity: 1;
+}
+html.is-targeting .reticle__dot {
+  background: var(--accent);
+}
+
+.catch-hint {
+  position: absolute;
+  left: 50%;
+  top: calc(50% + 76px);
+  transform: translateX(-50%);
+  white-space: nowrap;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--accent);
+  text-shadow: 0 1px 6px rgba(0, 0, 0, 0.7);
+  pointer-events: none;
+  display: none;
+}
+html.is-targeting .catch-hint {
+  display: block;
+}
+
+/* Credits counter. */
+.credits {
+  position: absolute;
+  top: calc(var(--safe-top) + 14px);
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 16px;
+  border-radius: 999px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  color: var(--text);
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  backdrop-filter: blur(6px);
+  pointer-events: none;
+}
+.credits__coin {
+  color: var(--accent);
+}
+
+/* Transient toast (e.g. ghost fled). */
+.toast {
+  position: absolute;
+  left: 50%;
+  bottom: calc(var(--safe-bottom) + 120px);
+  transform: translateX(-50%);
+  padding: 11px 20px;
+  border-radius: 999px;
+  background: rgba(20, 12, 16, 0.86);
+  border: 1px solid var(--danger);
+  color: #ffd7de;
+  font-size: 14px;
+  font-weight: 600;
+  white-space: nowrap;
+  pointer-events: none;
+  animation: toast-in 0.18s ease;
+}
+@keyframes toast-in {
+  from {
+    opacity: 0;
+    transform: translateX(-50%) translateY(8px);
+  }
+}
+
+/* Result modal contents. */
+.result {
+  text-align: center;
+}
+.result__rarity {
+  display: inline-block;
+  padding: 3px 12px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  color: #0a0a0f;
+}
+.result__rarity--common {
+  background: #9fb0d8;
+}
+.result__rarity--uncommon {
+  background: #7bf0a8;
+}
+.result__rarity--rare {
+  background: #6fa8ff;
+}
+.result__rarity--epic {
+  background: #b977ff;
+}
+.result__rarity--legendary {
+  background: #ffcf5a;
+}
+.result__name {
+  margin-top: 12px;
+  font-size: 24px;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+.result__new {
+  font-size: 11px;
+  font-weight: 800;
+  color: #08110b;
+  background: var(--accent);
+  padding: 2px 7px;
+  border-radius: 6px;
+}
+.result__lore {
+  margin: 12px 0 0;
+  color: var(--text-dim);
+  font-size: 14px;
+  line-height: 1.6;
+}
+.result__reward {
+  margin-top: 18px;
+  font-size: 20px;
+  font-weight: 800;
+  color: var(--accent);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+}
+.result__bonus {
+  font-size: 12px;
+  font-weight: 700;
+  color: #ffd56b;
+  border: 1px solid #ffd56b;
+  border-radius: 6px;
+  padding: 2px 7px;
+}
+
+/* ───────────────────────── HUD buttons ───────────────────────── */
+.hud-btn {
+  appearance: none;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text);
+  border-radius: 999px;
+  padding: 8px 16px;
+  font-weight: 700;
+  font-size: 14px;
+  backdrop-filter: blur(6px);
+  pointer-events: auto;
+  cursor: pointer;
+}
+.hud-btn:active {
+  transform: scale(0.96);
+}
+.hud-topright {
+  position: absolute;
+  top: calc(var(--safe-top) + 14px);
+  right: 16px;
+  display: flex;
+  gap: 8px;
+  pointer-events: none;
+}
+.hud-topright .hud-btn {
+  pointer-events: auto;
+}
+
+/* ───────────────────────── 도감 (collection) ───────────────────────── */
+.dogam {
+  position: fixed;
+  inset: 0;
+  z-index: var(--hud-z-modal);
+  display: flex;
+  flex-direction: column;
+  background: var(--bg);
+  pointer-events: auto;
+  padding-top: var(--safe-top);
+  padding-bottom: var(--safe-bottom);
+}
+.dogam__header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px 18px;
+  border-bottom: 1px solid var(--border);
+}
+.dogam__title {
+  margin: 0;
+  font-size: 20px;
+  font-weight: 800;
+}
+.dogam__progress {
+  font-weight: 800;
+  color: var(--accent);
+  font-variant-numeric: tabular-nums;
+}
+.dogam__progress-total {
+  color: var(--text-dim);
+  font-weight: 600;
+}
+.dogam__close {
+  margin-left: auto;
+  appearance: none;
+  border: none;
+  background: transparent;
+  color: var(--text);
+  font-size: 22px;
+  line-height: 1;
+  padding: 4px 8px;
+  cursor: pointer;
+}
+.dogam__grid {
+  flex: 1;
+  overflow-y: auto;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+  padding: 16px;
+  -webkit-overflow-scrolling: touch;
+}
+@media (min-width: 520px) {
+  .dogam__grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+.dogam-cell {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 150px;
+  padding: 14px 10px;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  background: var(--bg-elevated);
+}
+.dogam-cell--locked {
+  color: var(--text-dim);
+  border-style: dashed;
+}
+.dogam-cell__q {
+  font-size: 42px;
+  font-weight: 800;
+  opacity: 0.45;
+}
+.dogam-cell__thumb {
+  width: 84px;
+  height: 84px;
+  object-fit: contain;
+}
+.dogam-cell__thumb--placeholder {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 46px;
+}
+.dogam-cell__name {
+  font-weight: 700;
+  font-size: 14px;
+  text-align: center;
+}
+.dogam-cell__meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  color: var(--text-dim);
+}
+.dogam-cell__count {
+  font-variant-numeric: tabular-nums;
+}
+.dogam-cell--common {
+  border-color: rgba(159, 176, 216, 0.45);
+}
+.dogam-cell--uncommon {
+  border-color: rgba(123, 240, 168, 0.45);
+}
+.dogam-cell--rare {
+  border-color: rgba(111, 168, 255, 0.5);
+}
+.dogam-cell--epic {
+  border-color: rgba(185, 119, 255, 0.5);
+}
+.dogam-cell--legendary {
+  border-color: rgba(255, 207, 90, 0.6);
+}
+.dogam-cell__rarity--common {
+  color: #9fb0d8;
+}
+.dogam-cell__rarity--uncommon {
+  color: #7bf0a8;
+}
+.dogam-cell__rarity--rare {
+  color: #6fa8ff;
+}
+.dogam-cell__rarity--epic {
+  color: #b977ff;
+}
+.dogam-cell__rarity--legendary {
+  color: #ffcf5a;
+}
+
+/* ───────────────────────── Settings ───────────────────────── */
+.settings {
+  position: fixed;
+  inset: 0;
+  z-index: var(--hud-z-modal);
+  display: flex;
+  flex-direction: column;
+  background: var(--bg);
+  pointer-events: auto;
+  padding-top: var(--safe-top);
+  padding-bottom: var(--safe-bottom);
+}
+.settings__header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px 18px;
+  border-bottom: 1px solid var(--border);
+}
+.settings__title {
+  margin: 0;
+  font-size: 20px;
+  font-weight: 800;
+}
+.settings__header .dogam__close {
+  margin-left: auto;
+}
+.settings__body {
+  padding: 20px 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+}
+.settings__row {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.settings__label {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text-dim);
+}
+.seg {
+  display: flex;
+  gap: 6px;
+  padding: 4px;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+}
+.seg__btn {
+  flex: 1;
+  appearance: none;
+  border: none;
+  background: transparent;
+  color: var(--text-dim);
+  font-weight: 700;
+  font-size: 14px;
+  padding: 10px 8px;
+  border-radius: 9px;
+  cursor: pointer;
+}
+.seg__btn.is-active {
+  background: var(--accent);
+  color: #08110b;
+}
+.settings__reset {
+  margin-top: 8px;
+  appearance: none;
+  background: transparent;
+  border: 1px solid var(--danger);
+  color: var(--danger);
+  font-weight: 700;
+  border-radius: 12px;
+  padding: 14px;
+  cursor: pointer;
+}
+.btn-ghost {
+  appearance: none;
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--text);
+  border-radius: 999px;
+  padding: 12px 22px;
+  font-weight: 700;
+  cursor: pointer;
+}
+.btn-danger {
+  appearance: none;
+  background: var(--danger);
+  border: none;
+  color: #fff;
+  border-radius: 999px;
+  padding: 12px 22px;
+  font-weight: 800;
+  cursor: pointer;
+}
+.gate__install {
+  margin-top: 10px;
+  font-size: 12px;
+  color: var(--text-dim);
+  opacity: 0.9;
+}
+
+/* ───────────────────────── Ambush dread warning ───────────────────────── */
+.warning {
+  position: absolute;
+  inset: 0;
+  z-index: 8;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+  background: radial-gradient(circle at 50% 50%, transparent 28%, rgba(0, 0, 0, 0.6) 100%);
+  animation: warning-pulse 1.2s ease-in-out forwards;
+}
+.warning__text {
+  position: relative;
+  padding: 0 24px;
+  font-size: clamp(22px, 7vw, 40px);
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-align: center;
+  color: #ff2a3c;
+  text-shadow:
+    0 0 18px rgba(255, 30, 50, 0.85),
+    0 2px 2px #000;
+  animation:
+    warning-flicker 0.11s steps(2) infinite,
+    warning-shift 1.2s ease both;
+}
+.warning__text::before,
+.warning__text::after {
+  content: attr(data-text);
+  position: absolute;
+  inset: 0;
+  padding: 0 24px;
+  opacity: 0.55;
+  mix-blend-mode: screen;
+}
+.warning__text::before {
+  color: #28d2ff;
+  transform: translate(-2px, 0);
+}
+.warning__text::after {
+  color: #ff2a3c;
+  transform: translate(2px, 0);
+}
+@keyframes warning-pulse {
+  0% {
+    opacity: 0;
+  }
+  14% {
+    opacity: 1;
+  }
+  82% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+@keyframes warning-flicker {
+  0% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.74;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+@keyframes warning-shift {
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+  20% {
+    transform: translate(-3px, 1px);
+  }
+  45% {
+    transform: translate(3px, -1px);
+  }
+  70% {
+    transform: translate(-1px, 0);
+  }
+}

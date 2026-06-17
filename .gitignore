@@ -1,0 +1,15 @@
+node_modules
+dist
+dev-dist
+*.local
+.vite
+.DS_Store
+*.log
+*.tsbuildinfo
+
+# mkcert generated dev certificates
+.cert
+*.pem
+
+# downloaded dev tooling (cloudflared binary)
+tools/

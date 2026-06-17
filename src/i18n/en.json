@@ -1,0 +1,63 @@
+{
+  "gate.eyebrow": "AR GHOST HUNTER",
+  "gate.title": "Ghosts Are Around You",
+  "gate.desc": "Point your camera around and ghosts from across the world appear without warning. Center one in the reticle to catch it and earn credits.",
+  "gate.cta": "Tap to start",
+  "gate.cta.busy": "Preparing…",
+  "gate.hint": "Camera and motion-sensor access are required.",
+
+  "permission.title": "Permission needed",
+  "permission.retry": "Retry",
+  "permission.camera.denied": "Camera access was denied. Allow it in Settings > Safari (or the home-screen app) > Camera.",
+  "permission.camera.notfound": "No usable camera was found.",
+  "permission.camera.inuse": "The camera is in use by another app. Close it and try again.",
+  "permission.camera.unknown": "Couldn't start the camera. Make sure you're on an HTTPS connection.",
+  "permission.orientation.denied": "Motion-sensor access was denied, so you can't look around. Allow Motion & Orientation access in Settings, then retry.",
+
+  "hud.dogam": "Dex",
+  "hud.settings": "Settings",
+  "hunt.orientHint": "Hold up your phone and slowly look around…",
+  "hunt.catchHint": "Hold to catch",
+  "credits.label": "Credits",
+
+  "result.title": "Caught!",
+  "result.new": "NEW",
+  "result.reward": "+{n} credits",
+  "result.bonus": "Ambush bonus",
+  "result.continue": "Continue",
+
+  "dogam.title": "Ghost Dex",
+  "dogam.close": "Close",
+
+  "rarity.common": "Common",
+  "rarity.uncommon": "Uncommon",
+  "rarity.rare": "Rare",
+  "rarity.epic": "Epic",
+  "rarity.legendary": "Legendary",
+
+  "settings.title": "Settings",
+  "settings.language": "Language",
+  "settings.theme": "Theme",
+  "settings.theme.dark": "Dark",
+  "settings.theme.light": "Light",
+  "settings.theme.system": "System",
+  "settings.audio": "Sound",
+  "settings.on": "On",
+  "settings.off": "Off",
+  "settings.reset": "Reset progress",
+  "settings.reset.confirmTitle": "Reset all progress?",
+  "settings.reset.confirmBody": "Your credits and dex will be erased. This cannot be undone.",
+  "settings.reset.cancel": "Cancel",
+  "settings.reset.ok": "Reset",
+  "settings.close": "Close",
+
+  "warning.1": "There are ghosts around you",
+  "warning.2": "Something… is near",
+  "warning.3": "Watch your back",
+  "warning.4": "Hold your breath…",
+  "toast.fled": "{name} — got away…",
+
+  "install.title": "Add to Home Screen",
+  "install.body": "Tap Safari's Share button, then 'Add to Home Screen' to play full-screen.",
+  "install.dismiss": "Got it"
+}

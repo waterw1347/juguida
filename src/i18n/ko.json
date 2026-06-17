@@ -1,0 +1,63 @@
+{
+  "gate.eyebrow": "AR 고스트 헌터",
+  "gate.title": "주변에 귀신이 있습니다",
+  "gate.desc": "카메라로 주위를 비추면 세계의 귀신들이 갑자기 나타납니다. 가운데 조준점에 맞춰 잡아 크레딧을 모으세요.",
+  "gate.cta": "탭하여 시작",
+  "gate.cta.busy": "준비 중…",
+  "gate.hint": "카메라와 동작 센서(자이로) 권한이 필요합니다.",
+
+  "permission.title": "권한이 필요합니다",
+  "permission.retry": "다시 시도",
+  "permission.camera.denied": "카메라 접근이 거부되었습니다. 설정 > Safari(또는 홈 화면 앱) > 카메라에서 허용해 주세요.",
+  "permission.camera.notfound": "사용 가능한 카메라를 찾을 수 없습니다.",
+  "permission.camera.inuse": "카메라를 다른 앱이 사용 중입니다. 해당 앱을 종료한 뒤 다시 시도해 주세요.",
+  "permission.camera.unknown": "카메라를 시작할 수 없습니다. HTTPS 연결인지 확인해 주세요.",
+  "permission.orientation.denied": "동작 센서(자이로) 권한이 거부되어 주위를 둘러볼 수 없습니다. 설정에서 동작 및 방향 접근을 허용한 뒤 다시 시도해 주세요.",
+
+  "hud.dogam": "도감",
+  "hud.settings": "설정",
+  "hunt.orientHint": "폰을 들고 천천히 움직여 주위를 둘러보세요…",
+  "hunt.catchHint": "꾹 눌러서 포획",
+  "credits.label": "크레딧",
+
+  "result.title": "포획 성공!",
+  "result.new": "NEW",
+  "result.reward": "+{n} 크레딧",
+  "result.bonus": "기습 보너스",
+  "result.continue": "계속",
+
+  "dogam.title": "도감",
+  "dogam.close": "닫기",
+
+  "rarity.common": "흔함",
+  "rarity.uncommon": "비범",
+  "rarity.rare": "희귀",
+  "rarity.epic": "영웅",
+  "rarity.legendary": "전설",
+
+  "settings.title": "설정",
+  "settings.language": "언어",
+  "settings.theme": "테마",
+  "settings.theme.dark": "다크",
+  "settings.theme.light": "라이트",
+  "settings.theme.system": "시스템",
+  "settings.audio": "소리",
+  "settings.on": "켜기",
+  "settings.off": "끄기",
+  "settings.reset": "기록 초기화",
+  "settings.reset.confirmTitle": "기록을 초기화할까요?",
+  "settings.reset.confirmBody": "크레딧과 도감이 모두 지워집니다. 되돌릴 수 없습니다.",
+  "settings.reset.cancel": "취소",
+  "settings.reset.ok": "초기화",
+  "settings.close": "닫기",
+
+  "warning.1": "주변에 귀신이 있습니다",
+  "warning.2": "무언가… 가까이 있습니다",
+  "warning.3": "등 뒤를 조심하세요",
+  "warning.4": "숨을 죽이세요…",
+  "toast.fled": "{name} — 놓쳤다…",
+
+  "install.title": "홈 화면에 추가",
+  "install.body": "Safari 공유 버튼 → '홈 화면에 추가'를 누르면 전체 화면 앱으로 즐길 수 있습니다.",
+  "install.dismiss": "알겠어요"
+}

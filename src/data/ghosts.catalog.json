@@ -1,0 +1,100 @@
+{
+  "version": 1,
+  "ghosts": [
+    {
+      "id": "kr_cheonyeo",
+      "name": { "ko": "처녀귀신", "en": "Cheonyeo Gwisin" },
+      "origin": "KR",
+      "rarity": "common",
+      "spawnWeight": 10,
+      "catchDifficulty": 2,
+      "catchProbability": 0.85,
+      "skittishness": 0.2,
+      "creditReward": 10,
+      "lore": {
+        "ko": "소복을 입은 한국의 대표적인 귀신. 긴 머리로 얼굴을 가린 채 나타난다.",
+        "en": "Korea's iconic ghost in white burial robes, face veiled by long black hair."
+      },
+      "sprite": { "atlas": "sprites/kr_cheonyeo.png", "frameWidth": 256, "frameHeight": 256, "frameCount": 1, "fps": 1 },
+      "activeWindowMs": 6000,
+      "ambushBias": 0.3,
+      "revealIntensity": 0.4
+    },
+    {
+      "id": "jp_kappa",
+      "name": { "ko": "갓파", "en": "Kappa" },
+      "origin": "JP",
+      "rarity": "uncommon",
+      "spawnWeight": 8,
+      "catchDifficulty": 4,
+      "catchProbability": 0.7,
+      "skittishness": 0.45,
+      "creditReward": 25,
+      "lore": {
+        "ko": "물가에 사는 일본 요괴. 머리 위 접시의 물이 마르면 힘을 잃는다.",
+        "en": "A Japanese water yokai; it loses power if the dish atop its head dries out."
+      },
+      "sprite": { "atlas": "sprites/jp_kappa.png", "frameWidth": 256, "frameHeight": 256, "frameCount": 1, "fps": 1 },
+      "activeWindowMs": 5000,
+      "ambushBias": 0.4,
+      "revealIntensity": 0.5
+    },
+    {
+      "id": "eu_dullahan",
+      "name": { "ko": "둘라한", "en": "Dullahan" },
+      "origin": "EU",
+      "rarity": "rare",
+      "spawnWeight": 6,
+      "catchDifficulty": 6,
+      "catchProbability": 0.55,
+      "skittishness": 0.6,
+      "creditReward": 60,
+      "lore": {
+        "ko": "자신의 머리를 손에 든 채 검은 말을 타는 아일랜드의 목 없는 기사.",
+        "en": "The headless horseman of Irish legend, carrying its own head in one hand."
+      },
+      "sprite": { "atlas": "sprites/eu_dullahan.png", "frameWidth": 256, "frameHeight": 256, "frameCount": 1, "fps": 1 },
+      "activeWindowMs": 4200,
+      "ambushBias": 0.6,
+      "revealIntensity": 0.7
+    },
+    {
+      "id": "cn_jiangshi",
+      "name": { "ko": "강시", "en": "Jiangshi" },
+      "origin": "CN",
+      "rarity": "epic",
+      "spawnWeight": 4,
+      "catchDifficulty": 8,
+      "catchProbability": 0.4,
+      "skittishness": 0.75,
+      "creditReward": 140,
+      "lore": {
+        "ko": "부적이 붙은 채 통통 뛰어다니는 중국의 강시. 밤에만 움직인다.",
+        "en": "A hopping Chinese revenant sealed with a paper talisman, stirring only at night."
+      },
+      "sprite": { "atlas": "sprites/cn_jiangshi.png", "frameWidth": 256, "frameHeight": 256, "frameCount": 1, "fps": 1 },
+      "activeWindowMs": 3500,
+      "ambushBias": 0.7,
+      "revealIntensity": 0.85
+    },
+    {
+      "id": "global_wraith",
+      "name": { "ko": "고대의 망령", "en": "Ancient Wraith" },
+      "origin": "GLOBAL",
+      "rarity": "legendary",
+      "spawnWeight": 2,
+      "catchDifficulty": 10,
+      "catchProbability": 0.28,
+      "skittishness": 0.9,
+      "creditReward": 400,
+      "lore": {
+        "ko": "어느 문화권에도 속하지 않는, 가장 오래된 두려움이 형상화된 망령.",
+        "en": "The oldest fear made manifest, belonging to no single culture."
+      },
+      "sprite": { "atlas": "sprites/global_wraith.png", "frameWidth": 256, "frameHeight": 256, "frameCount": 1, "fps": 1 },
+      "activeWindowMs": 3000,
+      "ambushBias": 0.85,
+      "revealIntensity": 1.0
+    }
+  ]
+}

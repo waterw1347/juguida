@@ -1,0 +1,75 @@
+/*
+ * Theme tokens. The DOM/HUD layer reads these CSS variables; the WebGL/AR layer
+ * cannot, so resolved values are also read in JS and pushed to Three.js materials
+ * (see engine/ScreenEffects + ui bridge).
+ */
+
+:root {
+  /* Layout */
+  --safe-top: env(safe-area-inset-top, 0px);
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+  --safe-left: env(safe-area-inset-left, 0px);
+  --safe-right: env(safe-area-inset-right, 0px);
+
+  --hud-z-video: 0;
+  --hud-z-canvas: 1;
+  --hud-z-hud: 2;
+  --hud-z-modal: 10;
+
+  /* Brand accent — eerie green */
+  --accent: #6bff9e;
+  --accent-dim: #2f7a4d;
+  --danger: #ff5470;
+  --reticle: #ffffff;
+}
+
+/* Dark (default — best behind a live camera feed) */
+:root,
+[data-theme='dark'] {
+  --bg: #0a0a0f;
+  --bg-elevated: #15151f;
+  --surface: rgba(20, 20, 30, 0.82);
+  --surface-solid: #14141e;
+  --text: #f4f4f8;
+  --text-dim: #a0a0b0;
+  --border: rgba(255, 255, 255, 0.12);
+  --overlay-scrim: rgba(0, 0, 0, 0.55);
+  --camera-filter: brightness(0.92) contrast(1.05);
+}
+
+[data-theme='light'] {
+  --bg: #f4f4f8;
+  --bg-elevated: #ffffff;
+  --surface: rgba(255, 255, 255, 0.9);
+  --surface-solid: #ffffff;
+  --text: #16161d;
+  --text-dim: #5a5a68;
+  --border: rgba(0, 0, 0, 0.12);
+  --overlay-scrim: rgba(20, 20, 30, 0.35);
+  --camera-filter: none;
+}
+
+* {
+  box-sizing: border-box;
+  -webkit-tap-highlight-color: transparent;
+}
+
+html,
+body,
+#root {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  height: 100%;
+  height: 100dvh;
+  overflow: hidden;
+  overscroll-behavior: none;
+  background: var(--bg);
+  color: var(--text);
+  font-family:
+    -apple-system, BlinkMacSystemFont, 'Apple SD Gothic Neo', 'Pretendard', 'Noto Sans KR',
+    system-ui, sans-serif;
+  user-select: none;
+  -webkit-user-select: none;
+  touch-action: manipulation;
+}

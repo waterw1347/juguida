@@ -1,0 +1,48 @@
+{
+  "name": "ghosts-around-you",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "description": "주변에 귀신이 있습니다 — Web AR 귀신 잡기 게임 (PWA)",
+  "scripts": {
+    "dev": "vite --host",
+    "dev:tunnel": "vite --host --port 5173",
+    "build": "tsc -b && vite build",
+    "preview": "vite preview",
+    "lint": "eslint .",
+    "format": "prettier --write \"src/**/*.{ts,tsx,css}\" \"scripts/**/*.ts\"",
+    "pretest": "npm run validate:catalog",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "validate:catalog": "tsx scripts/validate-catalog.ts",
+    "icons": "node scripts/generate-icons.mjs"
+  },
+  "dependencies": {
+    "idb": "^8.0.0",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "three": "^0.171.0"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.17.0",
+    "@types/node": "^22.10.2",
+    "@types/react": "^19.0.0",
+    "@types/react-dom": "^19.0.0",
+    "@types/three": "^0.171.0",
+    "@vitejs/plugin-react": "^4.3.4",
+    "eslint": "^9.17.0",
+    "eslint-plugin-react-hooks": "^5.1.0",
+    "eslint-plugin-react-refresh": "^0.4.16",
+    "fake-indexeddb": "^6.0.0",
+    "globals": "^15.14.0",
+    "happy-dom": "^15.11.0",
+    "prettier": "^3.4.2",
+    "tsx": "^4.19.2",
+    "typescript": "^5.7.2",
+    "typescript-eslint": "^8.18.0",
+    "vite": "^6.0.5",
+    "vite-plugin-mkcert": "^1.17.6",
+    "vite-plugin-pwa": "^0.21.1",
+    "vitest": "^2.1.8"
+  }
+}
