@@ -41,5 +41,5 @@ export type SpawnEvent =
   | { type: 'revealed'; ghost: GhostInstance; ambush: boolean }
   | { type: 'expired'; ghost: GhostInstance }
   | { type: 'removed'; instanceId: string }
-  /** A dread warning precedes an ambush; the ghost pops after ambushWarningMs. */
+  /** A dread warning (예고) precedes every spawn; the ghost pops after warningLeadMs. */
   | { type: 'warning'; ambush: boolean };

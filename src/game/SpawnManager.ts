@@ -10,13 +10,13 @@ const WORLD_UP: Vec3 = { x: 0, y: 1, z: 0 };
 export interface SpawnConfig {
   /** Max concurrent ghosts on screen. Kept low so each "확!" lands. */
   maxActive: number;
-  /** Randomized dwell [min, max] (ms) the player must look steadily before a gaze pop. */
+  /** Randomized dwell [min, max] (ms) the player must look steadily before a gaze warning. */
   gazeDwellMs: [number, number];
   /** Minimum gap between gaze pops, milliseconds. */
   gazeCooldownMs: number;
   /** Fractional jitter (0..1) on the gaze cooldown. */
   gazeCooldownJitter: number;
-  /** Probability a due gaze pop actually fires (keeps it unpredictable). */
+  /** Probability a gaze warning (예고) resolves into a ghost — else a fakeout. */
   gazeChance: number;
   /** Angular offset [min, max] from screen center where a gaze ghost pops. Radians. */
   gazeOffset: [number, number];
@@ -26,8 +26,10 @@ export interface SpawnConfig {
   ambushIntervalMs: number;
   /** Fractional jitter (0..1) on the ambush interval. */
   ambushJitter: number;
-  /** Dread-message lead time before an ambush ghost pops. 0 disables the warning. */
-  ambushWarningMs: number;
+  /** Probability an ambush warning (예고) resolves into a ghost — else a fakeout. */
+  ambushChance: number;
+  /** Lead time from a warning (예고) to the ghost popping. Shared by every trigger. */
+  warningLeadMs: number;
   /** Azimuth spread of behind-the-player ambushes, radians. */
   ambushSpread: number;
   /** Elevation band [min, max] for ambush spawns, radians. */
@@ -37,19 +39,22 @@ export interface SpawnConfig {
 export const DEFAULT_SPAWN_CONFIG: SpawnConfig = {
   // Rare + anticipated = scary. Few on screen, each one an event.
   maxActive: 2,
-  // You must stare into a spot for 1.2–2.8s before something appears there.
+  // You must stare into a spot for 1.2–2.8s before a warning fires there.
   gazeDwellMs: [1200, 2800],
   // Long, jittered gap after a pop so it never feels metronomic.
   gazeCooldownMs: 5000,
   gazeCooldownJitter: 0.5,
-  // Sometimes the dwell completes and nothing happens — keeps you uneasy.
+  // ~30% of gaze warnings are fakeouts — keeps you uneasy.
   gazeChance: 0.7,
   gazeOffset: [6 * DEG2RAD, 22 * DEG2RAD],
   steadyMaxSpeed: 1.4,
   // Behind-you ambush every ~8–24s.
   ambushIntervalMs: 16000,
   ambushJitter: 0.5,
-  ambushWarningMs: 950,
+  // Ambushes are rare events, so they pay off more often (~10% fakeout).
+  ambushChance: 0.9,
+  // A dread cue precedes every spawn by ~1s.
+  warningLeadMs: 1000,
   ambushSpread: 50 * DEG2RAD,
   ambushElevation: [-12 * DEG2RAD, 16 * DEG2RAD],
 };
@@ -62,15 +67,27 @@ export interface SpawnManagerDeps {
   config?: Partial<SpawnConfig>;
 }
 
+type RevealKind = 'gaze' | 'ambush';
+
+/** A warned spawn waiting to resolve. Gaze locks its direction at warning time;
+ *  ambush leaves it null and resolves behind the player at reveal time. */
+interface PendingReveal {
+  atMs: number;
+  kind: RevealKind;
+  position: SpawnPosition | null;
+}
+
 /**
- * Decides WHEN and WHERE a ghost bursts into view ("확!"). Ghosts are created
- * already active — no pre-placed pool that predictably fades in. Two triggers:
- *   - gaze pop: the player's view settles → a ghost snaps into being right where
- *     they're looking (slightly off-center). This is the "비추면 거기서 팍" feel.
- *   - ambush: a timer fires → a ghost pops behind/beside the player.
+ * Decides WHEN and WHERE a ghost bursts into view ("확!"). Every spawn is gated
+ * behind a dread warning (예고): a trigger fires a `warning`, then after
+ * `warningLeadMs` the spawn resolves — sometimes into a ghost, sometimes into
+ * nothing (a fakeout). Two triggers feed the one warning slot:
+ *   - gaze: the player's view settles → a warning fires, then a ghost pops right
+ *     where they were looking (slightly off-center). The "비추면 거기서 팍" feel.
+ *   - ambush: a timer fires → a warning, then a ghost pops behind/beside the player.
  *
  * Pure logic: no Three.js, no DOM. `update()` returns the events that occurred,
- * which the engine turns into a hard sprite pop + screen effects.
+ * which the engine turns into the warning cue, then a hard sprite pop + screen effects.
  */
 export class SpawnManager {
   private readonly defs: Map<string, GhostDef>;
@@ -86,7 +103,7 @@ export class SpawnManager {
   private dwellTarget: number;
   private gazeCooldownUntil = 0;
   private nextAmbushAt: number | null = null;
-  private pendingAmbushAt: number | null = null;
+  private pending: PendingReveal | null = null;
 
   constructor(deps: SpawnManagerDeps) {
     this.defs = new Map(deps.catalog.map((d) => [d.id, d]));
@@ -117,8 +134,9 @@ export class SpawnManager {
     const events: SpawnEvent[] = [];
     this.expireStale(now, events);
     this.trackDwell(cameraForward, dtSeconds);
+    this.resolvePending(cameraForward, now, events);
     this.maybeGazePop(cameraForward, now, events);
-    this.maybeAmbush(cameraForward, now, events);
+    this.maybeAmbush(now, events);
     return events;
   }
 
@@ -140,47 +158,57 @@ export class SpawnManager {
     this.dwellMs = steady ? this.dwellMs + dt * 1000 : 0;
   }
 
+  private resolvePending(forward: Vec3, now: number, events: SpawnEvent[]): void {
+    const pending = this.pending;
+    if (pending === null || now < pending.atMs) return;
+    this.pending = null;
+
+    // Single warning slot → nothing spawns during the lead, so the maxActive
+    // check that passed at warning time still holds; no need to re-check here.
+    const chance = pending.kind === 'gaze' ? this.config.gazeChance : this.config.ambushChance;
+    if (this.rng() <= chance) {
+      const position = pending.position ?? this.behindPosition(forward);
+      this.spawnActive(position, now, pending.kind === 'ambush', events);
+    }
+    // Failed roll = fakeout: emit nothing; the HUD warning clears itself.
+
+    if (pending.kind === 'gaze') {
+      const { gazeCooldownMs, gazeCooldownJitter } = this.config;
+      this.gazeCooldownUntil =
+        now + gazeCooldownMs * (1 + randRange(this.rng, -gazeCooldownJitter, gazeCooldownJitter));
+    } else {
+      this.scheduleNextAmbush(now);
+    }
+  }
+
   private maybeGazePop(forward: Vec3, now: number, events: SpawnEvent[]): void {
+    if (this.pending !== null) return;
     if (now < this.gazeCooldownUntil) return;
     if (this.dwellMs < this.dwellTarget) return;
     if (this.instances.length >= this.config.maxActive) return;
 
-    // Reset dwell either way so a failed roll doesn't retry every frame.
+    // Reset dwell so we don't re-arm every frame while staring.
     this.dwellMs = 0;
     this.dwellTarget = this.rollDwellTarget();
-    if (this.rng() > this.config.gazeChance) return;
 
+    // Lock the spot now; the ghost pops here after the warning lead even if the
+    // player flinches away. The chance roll happens at resolution (fakeout).
     const [minOff, maxOff] = this.config.gazeOffset;
     const dir = offsetDirection(forward, randRange(this.rng, minOff, maxOff), this.rng() * Math.PI * 2);
-    this.spawnActive(positionFromDir(dir), now, false, events);
-
-    const { gazeCooldownMs, gazeCooldownJitter } = this.config;
-    this.gazeCooldownUntil = now + gazeCooldownMs * (1 + randRange(this.rng, -gazeCooldownJitter, gazeCooldownJitter));
+    this.pending = { atMs: now + this.config.warningLeadMs, kind: 'gaze', position: positionFromDir(dir) };
+    events.push({ type: 'warning', ambush: false });
   }
 
-  private maybeAmbush(forward: Vec3, now: number, events: SpawnEvent[]): void {
-    // Phase 2: a warned ambush comes due → pop behind wherever the player now looks.
-    if (this.pendingAmbushAt !== null) {
-      if (now >= this.pendingAmbushAt) {
-        this.pendingAmbushAt = null;
-        if (this.instances.length < this.config.maxActive) {
-          this.spawnActive(this.behindPosition(forward), now, true, events);
-        }
-      }
-      return; // hold off scheduling another ambush while one is pending
-    }
-
+  private maybeAmbush(now: number, events: SpawnEvent[]): void {
+    if (this.pending !== null) return;
     if (this.nextAmbushAt === null || now < this.nextAmbushAt) return;
-    this.scheduleNextAmbush(now);
-    if (this.instances.length >= this.config.maxActive) return;
-
-    if (this.config.ambushWarningMs > 0) {
-      // Phase 1: dread message now; the ghost pops after the lead time.
-      this.pendingAmbushAt = now + this.config.ambushWarningMs;
-      events.push({ type: 'warning', ambush: true });
-    } else {
-      this.spawnActive(this.behindPosition(forward), now, true, events);
+    if (this.instances.length >= this.config.maxActive) {
+      this.scheduleNextAmbush(now);
+      return;
     }
+    // Behind-you direction is computed at resolution (against the player's view then).
+    this.pending = { atMs: now + this.config.warningLeadMs, kind: 'ambush', position: null };
+    events.push({ type: 'warning', ambush: true });
   }
 
   private behindPosition(forward: Vec3): SpawnPosition {
