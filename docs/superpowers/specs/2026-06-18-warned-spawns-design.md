@@ -126,13 +126,12 @@ if (now < pending.atMs) return
 const p = pending
 pending = null
 
-const underCap = instances.length < maxActive
 const chance = p.kind === 'gaze' ? gazeChance : ambushChance
-if (underCap && rng() <= chance) {
-  const position = p.kind === 'gaze' ? p.position! : behindPosition(forward)
+if (rng() <= chance) {
+  const position = p.position ?? behindPosition(forward)   // gaze=고정 방향, ambush=등 뒤
   spawnActive(position, now, /* ambush */ p.kind === 'ambush', events)   // spawned + revealed
 }
-// 그 외(가득참 또는 굴림 실패) = 헛예고: 아무 이벤트도 내지 않는다.
+// 굴림 실패 = 헛예고: 아무 이벤트도 내지 않는다.
 
 if (p.kind === 'gaze') {
   gazeCooldownUntil = now + gazeCooldownMs * (1 + randRange(-jitter, jitter))
@@ -143,6 +142,10 @@ if (p.kind === 'gaze') {
 
 > 참고: 기존 코드의 굴림은 `rng() > gazeChance`로 **거부**를 판정한다. 동일 의미를 유지하려면
 > 위 `rng() <= chance`(성공 판정)로 옮기되, 경계 동작이 같도록 주의한다.
+
+> **상한 재확인 불필요(단일 슬롯 불변식):** 예고 슬롯이 하나뿐이라 예고~해소 사이에는 다른 등장이 일어나지
+> 않는다(만료로 줄어들 수만 있음). 따라서 예고 시점에 통과한 `maxActive` 조건이 해소 시점에도 항상
+> 유지되므로, 해소 단계에서 상한을 다시 검사하지 않는다.
 
 ### 위치 처리
 
@@ -195,8 +198,7 @@ if (p.kind === 'gaze') {
 
 1. **시선 헛예고:** `gazeChance: 0`에서 응시 완료 시 `warning`은 뜨지만 이후 어떤 틱에도 `revealed` 없음.
 2. **예고 슬롯 단일성:** 예고가 떠 있는 동안 추가 응시/타이머가 새 `warning`을 만들지 않음.
-3. **해소 시 상한:** 해소 시점에 `maxActive`가 가득이면 등장하지 않고 헛예고 처리.
-4. **백어택 헛예고:** `ambushChance: 0`에서 백어택 예고 후 미등장.
+3. **백어택 헛예고:** `ambushChance: 0`에서 백어택 예고 후 미등장.
 
 ## 영향 받는 파일
 
