@@ -166,6 +166,7 @@ export class SpawnManager {
     // Single warning slot → nothing spawns during the lead, so the maxActive
     // check that passed at warning time still holds; no need to re-check here.
     const chance = pending.kind === 'gaze' ? this.config.gazeChance : this.config.ambushChance;
+    // mulberry32 ∈ [0,1), so `<= chance` matches the old `> gazeChance` reject boundary exactly.
     if (this.rng() <= chance) {
       const position = pending.position ?? this.behindPosition(forward);
       this.spawnActive(position, now, pending.kind === 'ambush', events);

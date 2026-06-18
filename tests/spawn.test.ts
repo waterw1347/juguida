@@ -39,7 +39,7 @@ describe('SpawnManager', () => {
     return mgr.update(forward, dtMs / 1000);
   }
 
-  // Gaze fires fast; warningLeadMs:0 means the pop resolves the tick after the warning.
+  // Gaze fires fast; warningLeadMs:1 means the pop resolves the tick after the warning.
   const GAZE: Partial<SpawnConfig> = {
     gazeDwellMs: [100, 100],
     gazeChance: 1,
@@ -47,7 +47,7 @@ describe('SpawnManager', () => {
     gazeCooldownJitter: 0,
     gazeOffset: [10 * DEG, 10 * DEG],
     steadyMaxSpeed: 100,
-    warningLeadMs: 0,
+    warningLeadMs: 1,
     ambushIntervalMs: 1e9, // disable ambush in gaze tests
   };
 
@@ -138,6 +138,10 @@ describe('SpawnManager', () => {
     const ev = revealed(step(mgr, FRONT, 800)); // 1500 ≥ 1500 → resolve, chance 0 → fakeout
     expect(ev).toHaveLength(0);
     expect(mgr.ghosts.length).toBe(0);
+    // After a fakeout the ambush timer must re-arm, or ambushes would starve.
+    // Fakeout resolved at t=1500 → next ambush scheduled at ~2000 (interval 500).
+    const next = warnings(step(mgr, FRONT, 500)); // t=2000
+    expect(next.some((e) => e.ambush === true)).toBe(true);
   });
 
   it('expires an active ghost after its catch window', () => {
