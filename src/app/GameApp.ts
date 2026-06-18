@@ -14,7 +14,7 @@ import { GameStore } from './GameStore';
 
 const ORIENTATION_POLL_MS = 250;
 
-/** Dread message keys shown just before an ambush (weighted toward the title). */
+/** Dread message keys shown just before a spawn (weighted toward the title). */
 const WARNING_KEYS = ['warning.1', 'warning.1', 'warning.2', 'warning.3', 'warning.4'] as const;
 
 /**

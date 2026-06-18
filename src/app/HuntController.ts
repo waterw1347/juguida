@@ -21,7 +21,7 @@ export interface HuntControllerDeps {
   onCaught: (def: GhostDef, ambush: boolean) => void;
   /** Fired when a ghost escapes a failed catch. */
   onFled: (def: GhostDef) => void;
-  /** Fired when a dread warning precedes an ambush. */
+  /** Fired when a dread warning (예고) precedes a spawn. */
   onWarning: () => void;
 }
 
