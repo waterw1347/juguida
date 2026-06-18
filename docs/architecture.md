@@ -53,7 +53,7 @@ HuntController.tick(dt):
 - `engine/OrientationController.ts` — 제거된 Three DeviceOrientationControls 알고리즘 vendor. 절대 북쪽 미사용(상대).
 - `engine/CameraFeed.ts` — 단일 getUserMedia 스트림(재획득 금지), CSS 레이어드 `<video>`.
 - `engine/ghostTexture.ts` — PNG 우선 + 절차적 망령 폴백(라이브 스왑). 아트 파이프라인: [ghost-art-pipeline.md](ghost-art-pipeline.md).
-- `game/SpawnManager.ts` — gaze-pop(비추면 팍) + 기습(등 뒤, 드레드 경고 후). `DEFAULT_SPAWN_CONFIG`로 빈도 튜닝.
+- `game/SpawnManager.ts` — gaze pop(비추면 팍, 예고 후) + 기습(등 뒤, 예고 후). 모든 등장은 `warningLeadMs` 드레드 예고로 시작. `DEFAULT_SPAWN_CONFIG`로 빈도 튜닝.
 - `game/CatchMechanic.ts` — 조준 히트테스트 + 홀드 게이지 + 포획/도주.
 - `app/GameApp.ts` — 권한·세션·결과·저장·설정 오케스트레이션.
 

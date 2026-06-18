@@ -1,8 +1,8 @@
 # 주변에 귀신이 있습니다 (Ghosts Are Around You)
 
-자이로 기반 Web AR 귀신 잡기 게임 (PWA). 카메라로 주위를 비추면 세계 각국의 귀신이 **확!** 나타나고, 화면 중앙 조준점에 맞춰 잡으면 크레딧을 얻고 도감을 채운다. iPhone Safari에서 "홈 화면에 추가"로 설치.
+자이로 기반 Web AR 귀신 잡기 게임 (PWA). 카메라로 주위를 비추면 서늘한 기운이 먼저 스치고, 곧 세계 각국의 귀신이 **확!** 나타난다. 화면 중앙 조준점에 맞춰 잡으면 크레딧을 얻고 도감을 채운다. iPhone Safari에서 "홈 화면에 추가"로 설치.
 
-A gyroscope-driven Web AR ghost-catching game (PWA). Point your camera around, ghosts burst into view, center one in the reticle and hold to catch it.
+A gyroscope-driven Web AR ghost-catching game (PWA). Point your camera around — a chill warns you, then a ghost bursts into view; center one in the reticle and hold to catch it.
 
 ## 스택
 

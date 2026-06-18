@@ -12,7 +12,7 @@ export interface SpawnConfig {
   maxActive: number;
   /** Randomized dwell [min, max] (ms) the player must look steadily before a gaze warning. */
   gazeDwellMs: [number, number];
-  /** Minimum gap between gaze pops, milliseconds. */
+  /** Minimum gap between gaze trigger resolutions (pop or fakeout), milliseconds. */
   gazeCooldownMs: number;
   /** Fractional jitter (0..1) on the gaze cooldown. */
   gazeCooldownJitter: number;
